@@ -56,7 +56,7 @@ pipeline {
             }
           }
           container('maven') {
-            sh 'mvn clean deploy -DskipTests'
+            sh 'mvn clean deploy -DskipTests --Ddocker.registry=docker.io'
 
             sh 'export VERSION=`cat VERSION` && skaffold run -f skaffold.yaml'
 
