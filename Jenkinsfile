@@ -20,8 +20,8 @@ pipeline {
         steps {
           container('maven') {
             sh "mvn versions:set -DnewVersion=$PREVIEW_VERSION"
-            sh "mvn install -Ddocker.registry=docker.io"
-            sh 'export VERSION=$PREVIEW_VERSION && skaffold run -f skaffold.yaml'
+            sh "mvn clean install"
+            sh 'export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml'
 
             sh "jx step validate --min-jx-version 1.2.36"
             sh "jx step post build --image \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:$PREVIEW_VERSION"
@@ -56,12 +56,18 @@ pipeline {
             }
           }
           container('maven') {
-            sh 'mvn clean deploy -DskipTests -Ddocker.registry=docker.io'
+            sh 'mvn clean deploy -DskipTests'
 
-            sh 'export VERSION=`cat VERSION` && skaffold run -f skaffold.yaml'
+            sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
 
             sh "jx step validate --min-jx-version 1.2.36"
             sh "jx step post build --image \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:\$(cat VERSION)"
+
+//            withCredentials([usernamePassword(credentialsId: 'dockerHub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]){
+//              sh "docker --config /tmp/ login docker.io -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+//              sh "docker tag \$JENKINS_X_DOCKER_REGISTRY_SERVICE_HOST:\$JENKINS_X_DOCKER_REGISTRY_SERVICE_PORT/$ORG/$APP_NAME:\$(cat VERSION) docker.io/activiti/rb-my-app:\$(cat VERSION)"
+//              sh "export DOCKER_CONFIG=/tmp/ && docker push docker.io/activiti/rb-my-app:\$(cat VERSION)"
+//            }
           }
         }
       }
@@ -89,9 +95,8 @@ pipeline {
             cleanWs()
         }
         failure {
-            input """Pipeline failed. 
-We will keep the build pod around to help you diagnose any failures. 
-
+            input """Pipeline failed.
+We will keep the build pod around to help you diagnose any failures.
 Select Proceed or Abort to terminate the build pod"""
         }
     }
