@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
+  
+    <!-- Database configurations -->
+    <property name="history" value="audit" />
+    <property name="databaseSchemaUpdate" value="drop-create" />
+    
+    <!-- job executor configurations -->
+    <property name="asyncExecutorActivate" value="true" />
+    <property name="asyncExecutorDefaultAsyncJobAcquireWaitTime" value="500" />
+    <property name="asyncExecutorDefaultTimerJobAcquireWaitTime" value="500" />
+    <property name="asyncExecutorDefaultQueueSizeFullWaitTime" value="100" />
+    <property name="asyncExecutorAsyncJobLockTimeInMillis" value="100" />
+    <property name="asyncExecutorTimerLockTimeInMillis" value="100" />
+    <property name="asyncExecutorMaxAsyncJobsDuePerAcquisition" value="10" />
+    <property name="asyncExecutorMaxTimerJobsPerAcquisition" value="10" />
+    <property name="asyncExecutorThreadPoolQueueSize" value="1000" />
+    
+    <!-- custom configurations -->
+	<property name="customPostDeployers">
+		<list>
+			<bean class="org.activiti.engine.impl.rules.RulesDeployer" />
+		</list>
+	</property>    
+  </bean>
+
+</beans>

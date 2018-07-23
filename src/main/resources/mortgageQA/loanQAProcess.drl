@@ -1,0 +1,13 @@
+package org.activiti.cloud.runtime.bundle.example
+
+import java.util.ArrayList;
+
+rule "LoanRule"
+when
+	$loan:Loan( status == Loan.STATUS_INCOMPLETE)
+    $documents: ArrayList( size >= 4 ) from collect (
+    	Document(category in ("Loan Application", "Loan Signature", "Loan Approval", "Loan Completion")) from $loan.documents
+   	)
+then
+	modify( $loan ) { setStatus(Loan.STATUS_COMPLETE) }
+end

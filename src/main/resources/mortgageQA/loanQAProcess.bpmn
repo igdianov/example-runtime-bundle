@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd" exporter="camunda modeler" exporterVersion="2.7.0" targetNamespace="http://www.activiti.org/test">
+  <process id="loanQAProcess" name="Loan QA Process" isExecutable="true">
+    <exclusiveGateway id="ExclusiveGateway_3" name="All documents loaded for the loan?">
+      <incoming>SequenceFlow_12</incoming>
+      <outgoing>SequenceFlow_13</outgoing>
+      <outgoing>SequenceFlow_14</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="SequenceFlow_13" name="No" sourceRef="ExclusiveGateway_3" targetRef="ServiceTask_8">
+      <conditionExpression xsi:type="tFormalExpression">${loan.valid == false}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_14" name="Yes" sourceRef="ExclusiveGateway_3" targetRef="ServiceTask_9">
+      <conditionExpression xsi:type="tFormalExpression">${loan.valid == true}</conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="ServiceTask_8" activiti:class="org.activiti.cloud.runtime.bundle.example.MarkLoanIncompleteJavaDelegate" name="Mark Loan Incomplete">
+      <incoming>SequenceFlow_13</incoming>
+      <incoming>SequenceFlow_4</incoming>
+    </serviceTask>
+    <receiveTask id="receiveDocument" name="Receive Document">
+      <incoming>SequenceFlow_6</incoming>
+      <incoming>SequenceFlow_7</incoming>
+      <outgoing>SequenceFlow_5</outgoing>
+    </receiveTask>
+    <businessRuleTask id="ServiceTask_7" activiti:class="org.activiti.engine.impl.bpmn.behavior.BusinessRuleTaskActivityBehavior" activiti:ruleVariablesInput="${loan}" name="Validate Loan Documents">
+      <incoming>SequenceFlow_3</incoming>
+      <outgoing>SequenceFlow_12</outgoing>
+    </businessRuleTask>
+    <sequenceFlow id="SequenceFlow_12" name="" sourceRef="ServiceTask_7" targetRef="ExclusiveGateway_3"/>
+    <exclusiveGateway id="ExclusiveGateway_1" name="Has threshold been reached?">
+      <incoming>SequenceFlow_2</incoming>
+      <outgoing>SequenceFlow_3</outgoing>
+      <outgoing>SequenceFlow_4</outgoing>
+    </exclusiveGateway>
+    <sequenceFlow id="SequenceFlow_3" name="Yes" sourceRef="ExclusiveGateway_1" targetRef="ServiceTask_7">
+      <conditionExpression xsi:type="tFormalExpression">${loan.documents.size() >= 4}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_4" name="No" sourceRef="ExclusiveGateway_1" targetRef="ServiceTask_8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${loan.documents.size() < 4}]]></conditionExpression>
+    </sequenceFlow>
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:formProperty id="documentId" name="Document Id" type="string"/>
+        <activiti:formProperty id="loanId" name="Loan Id" type="string"/>
+        <activiti:formProperty id="loanApplicationDate" name="Loan Application Date" type="date"/>
+        <activiti:formProperty id="documentCategory" name="Document Category" type="string"/>
+      </extensionElements>
+      <outgoing>SequenceFlow_6</outgoing>
+    </startEvent>
+    <sequenceFlow id="SequenceFlow_6" name="" sourceRef="startevent1" targetRef="receiveDocument"/>
+    <serviceTask id="ServiceTask_6" activiti:class="org.activiti.cloud.runtime.bundle.example.AddDocumentToLoanJavaDelegate" activiti:async="true" name="Add Document Category to Loan">
+      <incoming>SequenceFlow_1</incoming>
+      <outgoing>SequenceFlow_2</outgoing>
+    </serviceTask>
+    <sequenceFlow id="SequenceFlow_2" name="" sourceRef="ServiceTask_6" targetRef="ExclusiveGateway_1"/>
+    <parallelGateway id="ParallelGateway_1">
+      <incoming>SequenceFlow_5</incoming>
+      <outgoing>SequenceFlow_1</outgoing>
+      <outgoing>SequenceFlow_7</outgoing>
+    </parallelGateway>
+    <sequenceFlow id="SequenceFlow_1" name="" sourceRef="ParallelGateway_1" targetRef="ServiceTask_6"/>
+    <sequenceFlow id="SequenceFlow_5" name="" sourceRef="receiveDocument" targetRef="ParallelGateway_1"/>
+    <sequenceFlow id="SequenceFlow_7" name="" sourceRef="ParallelGateway_1" targetRef="receiveDocument"/>
+    <boundaryEvent id="BoundaryEvent_1" name="" attachedToRef="receiveDocument">
+      <outgoing>SequenceFlow_17</outgoing>
+      <signalEventDefinition id="_SignalEventDefinition_2" signalRef="Signal_1"/>
+    </boundaryEvent>
+    <serviceTask id="ServiceTask_9" activiti:class="org.activiti.cloud.runtime.bundle.example.MarkLoanCompleteJavaDelegate" name="Mark Loan Complete">
+      <incoming>SequenceFlow_14</incoming>
+      <outgoing>SequenceFlow_9</outgoing>
+    </serviceTask>
+    <sequenceFlow id="SequenceFlow_9" name="" sourceRef="ServiceTask_9" targetRef="IntermediateThrowEvent_1"/>
+    <sequenceFlow id="SequenceFlow_17" name="" sourceRef="BoundaryEvent_1" targetRef="ParallelGateway_2"/>
+    <endEvent id="endevent1" name="Loan Complete">
+      <incoming>SequenceFlow_10</incoming>
+    </endEvent>
+    <parallelGateway id="ParallelGateway_2">
+      <incoming>SequenceFlow_17</incoming>
+      <incoming>SequenceFlow_11</incoming>
+      <outgoing>SequenceFlow_10</outgoing>
+    </parallelGateway>
+    <sequenceFlow id="SequenceFlow_10" name="" sourceRef="ParallelGateway_2" targetRef="endevent1"/>
+    <intermediateThrowEvent id="IntermediateThrowEvent_1" name="Cancel Receive">
+      <incoming>SequenceFlow_9</incoming>
+      <outgoing>SequenceFlow_11</outgoing>
+      <signalEventDefinition id="_SignalEventDefinition_3" signalRef="Signal_1"/>
+    </intermediateThrowEvent>
+    <sequenceFlow id="SequenceFlow_11" name="" sourceRef="IntermediateThrowEvent_1" targetRef="ParallelGateway_2"/>
+    <textAnnotation id="TextAnnotation_1">
+      <text><![CDATA[async=true
+exclusive=true]]></text>
+    </textAnnotation>
+    <association id="Association_1" sourceRef="TextAnnotation_1" targetRef="ServiceTask_6"/>
+    <textAnnotation id="TextAnnotation_2">
+      <text>scope=processInstance</text>
+    </textAnnotation>
+    <association id="Association_3" sourceRef="TextAnnotation_2" targetRef="BoundaryEvent_1"/>
+  </process>
+  <signal id="Signal_1" activiti:scope="processInstance" name="Cancel Receive"/>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_myProcess">
+    <bpmndi:BPMNPlane id="BPMNPlane_myProcess" bpmnElement="loanQAProcess">
+      <bpmndi:BPMNShape id="BPMNShape_startevent1" bpmnElement="startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="454.0" y="411.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="34.0" x="454.0" y="451.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_endevent1" bpmnElement="endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1742.0" y="411.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="93.0" x="1713.0" y="451.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ServiceTask_7" bpmnElement="ServiceTask_6">
+        <omgdc:Bounds height="55.0" width="105.0" x="828.0" y="401.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ServiceTask_8" bpmnElement="ServiceTask_7">
+        <omgdc:Bounds height="55.0" width="105.0" x="1127.0" y="401.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ExclusiveGateway_4" bpmnElement="ExclusiveGateway_3" isMarkerVisible="true">
+        <omgdc:Bounds height="40.0" width="40.0" x="1343.0" y="408.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="206.0" x="1261.0" y="455.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_12" bpmnElement="SequenceFlow_12" sourceElement="_BPMNShape_ServiceTask_8" targetElement="_BPMNShape_ExclusiveGateway_4">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1231.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1343.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="1254.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_ServiceTask_9" bpmnElement="ServiceTask_8">
+        <omgdc:Bounds height="55.0" width="105.0" x="1311.0" y="288.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_13" bpmnElement="SequenceFlow_13" sourceElement="_BPMNShape_ExclusiveGateway_4" targetElement="_BPMNShape_ServiceTask_9">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1363.0" y="408.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1363.0" y="342.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="22.0" x="1332.0" y="361.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_ServiceTask_10" bpmnElement="ServiceTask_9">
+        <omgdc:Bounds height="55.0" width="105.0" x="1428.0" y="401.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_14" bpmnElement="SequenceFlow_14" sourceElement="_BPMNShape_ExclusiveGateway_4" targetElement="_BPMNShape_ServiceTask_10">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1383.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1428.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="29.0" x="1392.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_ReceiveTask_2" bpmnElement="receiveDocument">
+        <omgdc:Bounds height="55.0" width="105.0" x="588.0" y="401.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_6" bpmnElement="SequenceFlow_6" sourceElement="BPMNShape_startevent1" targetElement="_BPMNShape_ReceiveTask_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="488.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="588.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="532.0" y="455.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_ExclusiveGateway_5" bpmnElement="ExclusiveGateway_1" isMarkerVisible="true">
+        <omgdc:Bounds height="40.0" width="40.0" x="984.0" y="408.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="1004.0" y="453.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_2" bpmnElement="SequenceFlow_2" sourceElement="_BPMNShape_ServiceTask_7" targetElement="_BPMNShape_ExclusiveGateway_5">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="932.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="984.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="955.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_3" bpmnElement="SequenceFlow_3" sourceElement="_BPMNShape_ExclusiveGateway_5" targetElement="_BPMNShape_ServiceTask_8">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1024.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1127.0" y="428.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_4" bpmnElement="SequenceFlow_4" sourceElement="_BPMNShape_ExclusiveGateway_5" targetElement="_BPMNShape_ServiceTask_9">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1004.0" y="408.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1004.0" y="315.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1167.0" y="315.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1311.0" y="315.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="22.0" x="972.0" y="361.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_ParallelGateway_2" bpmnElement="ParallelGateway_1">
+        <omgdc:Bounds height="40.0" width="40.0" x="743.0" y="408.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="763.0" y="453.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_1" bpmnElement="SequenceFlow_1" sourceElement="_BPMNShape_ParallelGateway_2" targetElement="_BPMNShape_ServiceTask_7">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="783.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="828.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="804.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_5" bpmnElement="SequenceFlow_5" sourceElement="_BPMNShape_ReceiveTask_2" targetElement="_BPMNShape_ParallelGateway_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="692.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="743.0" y="428.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_7" bpmnElement="SequenceFlow_7" sourceElement="_BPMNShape_ParallelGateway_2" targetElement="_BPMNShape_ReceiveTask_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="763.0" y="448.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="763.0" y="526.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="640.0" y="526.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="640.0" y="455.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="760.0" y="473.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_BoundaryEvent_2" bpmnElement="BoundaryEvent_1">
+        <omgdc:Bounds height="35.0" width="35.0" x="640.0" y="384.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ParallelGateway_3" bpmnElement="ParallelGateway_2">
+        <omgdc:Bounds height="40.0" width="40.0" x="1670.0" y="408.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="0.0" width="0.0" x="1690.0" y="453.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_9" bpmnElement="SequenceFlow_9" sourceElement="_BPMNShape_ServiceTask_10" targetElement="_BPMNShape_IntermediateThrowEvent_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1532.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1589.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="1551.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_10" bpmnElement="SequenceFlow_10" sourceElement="_BPMNShape_ParallelGateway_3" targetElement="BPMNShape_endevent1">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1710.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1742.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="1720.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_IntermediateThrowEvent_2" bpmnElement="IntermediateThrowEvent_1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1589.0" y="411.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="22.0" width="95.0" x="1559.0" y="451.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_11" bpmnElement="SequenceFlow_11" sourceElement="_BPMNShape_IntermediateThrowEvent_2" targetElement="_BPMNShape_ParallelGateway_3">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1623.0" y="428.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1670.0" y="428.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="1661.0" y="428.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_SequenceFlow_17" bpmnElement="SequenceFlow_17" sourceElement="_BPMNShape_BoundaryEvent_2" targetElement="_BPMNShape_ParallelGateway_3">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="657.0" y="384.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="657.0" y="212.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1690.0" y="212.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="1690.0" y="408.0"/>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="6.0" width="6.0" x="999.0" y="212.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_11" bpmnElement="TextAnnotation_1">
+        <omgdc:Bounds height="54.0" width="109.0" x="876.0" y="264.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_Association_1" bpmnElement="Association_1" sourceElement="_BPMNShape_TextAnnotation_11" targetElement="_BPMNShape_ServiceTask_7">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="920.0" y="318.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="890.0" y="401.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_TextAnnotation_12" bpmnElement="TextAnnotation_2">
+        <omgdc:Bounds height="37.0" width="182.0" x="692.0" y="312.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_Association_3" bpmnElement="Association_3" sourceElement="_BPMNShape_TextAnnotation_12" targetElement="_BPMNShape_BoundaryEvent_2">
+        <omgdi:waypoint xsi:type="omgdc:Point" x="751.0" y="348.0"/>
+        <omgdi:waypoint xsi:type="omgdc:Point" x="674.0" y="391.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

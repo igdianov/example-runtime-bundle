@@ -1,0 +1,25 @@
+package org.activiti.cloud.runtime.bundle.example
+
+rule "MarkDocumentStatusValid"
+	when
+		$document:Document(
+			status == Document.STATUS_NEW,
+			id.length == 10, 
+			loanId.length == 9,
+			category in ( "Loan Application", "Loan Approval", "Loan Signature", "Loan Completion") 
+		)
+	then
+		$document.setStatus(Document.STATUS_VALID);
+		update($document);
+		System.out.println("---Document is valid: " + $document);
+end
+
+rule "MarkDocumentStatusError"
+salience -100
+    when
+        not Document(status == Document.STATUS_VALID)
+        $document: Document()
+    then
+		$document.setStatus(Document.STATUS_ERROR);
+		System.out.println("---Document error: " + $document);
+end

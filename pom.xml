@@ -18,10 +18,64 @@
     <developerConnection>scm:git:https://github.com/Activiti/${project.artifactId}.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
+  
+  <properties>
+  	<stagemonitor.version>0.88.2</stagemonitor.version>
+  </properties>
+  
   <dependencies>
+
+	<!-- Stagemonitor -->
+	<dependency>
+		<groupId>org.stagemonitor</groupId>
+		<artifactId>stagemonitor-web-servlet</artifactId>
+		<version>${stagemonitor.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.stagemonitor</groupId>
+		<artifactId>stagemonitor-os</artifactId>
+		<version>${stagemonitor.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.stagemonitor</groupId>
+		<artifactId>stagemonitor-logging</artifactId>
+		<version>${stagemonitor.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.stagemonitor</groupId>
+		<artifactId>stagemonitor-alerting</artifactId>
+		<version>${stagemonitor.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.stagemonitor</groupId>
+		<artifactId>stagemonitor-tracing-elasticsearch</artifactId>
+		<version>${stagemonitor.version}</version>
+	</dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+	  <groupId>org.activiti</groupId>
+	  <artifactId>activiti-engine</artifactId>  
+	  <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.activiti.cloud</groupId>
       <artifactId>activiti-cloud-starter-runtime-bundle</artifactId>
+      <exclusions>
+      	<exclusion>
+	      <groupId>org.activiti.cloud</groupId>
+	      <artifactId>activiti-cloud-services-tracing</artifactId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.activiti.cloud</groupId>
+      <artifactId>activiti-cloud-starter-configure</artifactId>
+ 	  <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.cloud</groupId>
@@ -60,6 +114,28 @@
       <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
+	<!-- Drools -->
+	<dependency>
+		<groupId>org.drools</groupId>
+		<artifactId>knowledge-api</artifactId>
+		<version>5.4.0.Final</version>
+	</dependency>
+	<dependency>
+		<groupId>org.drools</groupId>
+		<artifactId>drools-compiler</artifactId>
+		<version>5.4.0.Final</version>
+	</dependency>
+	<dependency>
+		<groupId>org.drools</groupId>
+		<artifactId>drools-core</artifactId>
+		<version>5.4.0.Final</version>
+	</dependency>
+	<dependency>
+		<groupId>org.mvel</groupId>
+		<artifactId>mvel2</artifactId>
+		<version>2.1.0.drools16</version>
+	</dependency>    
+    
   </dependencies>
   <repositories>
     <repository>
@@ -73,6 +149,17 @@
   </repositories>
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+	        <execution>
+	            <id>ban-blacklisted-dependencies</id>
+	            <phase>none</phase>
+	        </execution>
+        </executions>
+      </plugin>
+    
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
