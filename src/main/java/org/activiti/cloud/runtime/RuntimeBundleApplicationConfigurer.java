@@ -16,7 +16,7 @@ import org.springframework.core.io.Resource;
 @Configuration
 public class RuntimeBundleApplicationConfigurer implements ProcessEngineConfigurationConfigurer {
 	
-	@Value("classpath*:mortgateQA/*.*")
+	@Value("classpath*:mortgageQA/*.*")
 	private Resource[] deploymentResources;
 
 	@Override
