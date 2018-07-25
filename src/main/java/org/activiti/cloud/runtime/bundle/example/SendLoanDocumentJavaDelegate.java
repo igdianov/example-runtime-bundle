@@ -33,7 +33,7 @@ public class SendLoanDocumentJavaDelegate implements JavaDelegate {
 			if(loanProcess != null) {
 				
 				CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
-				CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRES_NEW);
+				CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRED);
 				
 					commandExecutor.execute(commandConfig, new Command<Void>() {
 						public Void execute(CommandContext commandContext) {
