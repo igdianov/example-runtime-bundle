@@ -95,7 +95,7 @@ public class MortgageQAProcessTest
 
         // given
         Date loanApplicationDate = new Date();
-        String loanIds[] = new String[10];
+        String loanIds[] = new String[5];
         for(int i=0; i<loanIds.length; i++) {
         	loanIds[i] = String.format("loan%05d", i+1);
         }
@@ -143,13 +143,13 @@ public class MortgageQAProcessTest
         Date loanApplicationDate = new Date();
         
         // when
-        String loanId = "loan00006";
+        String loanId = "loan10001";
         startDocumentQAProcessAsync(documentId, loanId, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Approval", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Completion", loanApplicationDate);
 
-        String loanId2 = "loan00007";
+        String loanId2 = "loan10002";
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Approval", loanApplicationDate);
