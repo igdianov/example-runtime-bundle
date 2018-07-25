@@ -12,9 +12,11 @@ import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.ActivitiRule;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -25,11 +27,13 @@ public class MortgageQAProcessTest
     @Rule
     public ActivitiRule activitiRule = new ActivitiRule();
     
+    private Deployment deployment;
+    
     @Before
     public void setUp() {
         RepositoryService repositoryService = activitiRule.getRepositoryService();
 
-        repositoryService.createDeployment()
+        this.deployment = repositoryService.createDeployment()
         	.name("Mortgate QA Process Workflow")
         	.addClasspathResource("mortgageQA/documentQAProcess.bpmn")
             .addClasspathResource("mortgageQA/documentQAProcess.drl")
@@ -37,6 +41,11 @@ public class MortgageQAProcessTest
             .addClasspathResource("mortgageQA/loanQAProcess.drl")
             .enableDuplicateFiltering()
             .deploy();
+    }
+    
+    @After
+    public void tearDown() {
+    	 activitiRule.getRepositoryService().deleteDeployment(deployment.getId(), true);
     }
 
     @Test
@@ -143,13 +152,13 @@ public class MortgageQAProcessTest
         Date loanApplicationDate = new Date();
         
         // when
-        String loanId = "loan10001";
+        String loanId = "loan00001";
         startDocumentQAProcessAsync(documentId, loanId, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Approval", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Completion", loanApplicationDate);
 
-        String loanId2 = "loan10002";
+        String loanId2 = "loan00002";
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Approval", loanApplicationDate);
