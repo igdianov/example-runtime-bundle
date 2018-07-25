@@ -5,14 +5,14 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.activiti.cloud.runtime.bundle.example.Document;
-import org.activiti.cloud.runtime.bundle.example.Loan;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
+import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.ActivitiRule;
 import org.junit.Before;
@@ -94,36 +94,40 @@ public class MortgageQAProcessTest
         RuntimeService runtimeService = activitiRule.getRuntimeService();
 
         // given
-        String documentId = "1234567890";
         Date loanApplicationDate = new Date();
+        String loanIds[] = new String[10];
+        for(int i=0; i<loanIds.length; i++) {
+        	loanIds[i] = String.format("loan%05d", i+1);
+        }
         
         // when
-        String loanId = "loan00001";
-        startDocumentQAProcessSync(documentId, loanId, "Loan Application", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId, "Loan Signature", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId, "Loan Approval", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId, "Loan Completion", loanApplicationDate);
-
-        String loanId2 = "loan00002";
-        startDocumentQAProcessSync(documentId, loanId2, "Loan Application", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId2, "Loan Signature", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId2, "Loan Approval", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId2, "Loan Completion", loanApplicationDate);
-
-        String loanId3 = "loan00003";
-        startDocumentQAProcessSync(documentId, loanId3, "Loan Application", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId3, "Loan Signature", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId3, "Loan Approval", loanApplicationDate);
-        startDocumentQAProcessSync(documentId, loanId3, "Loan Completion", loanApplicationDate);
+        for(int i=0, j=0; i<loanIds.length; i++, j++) {
+        	String documentId = String.format("doc%07d", j+1);
+        	String loanId = loanIds[i];
+        	
+            startDocumentQAProcessSync(documentId, loanId, "Loan Application", loanApplicationDate);
+            startDocumentQAProcessSync(documentId, loanId, "Loan Signature", loanApplicationDate);
+            startDocumentQAProcessSync(documentId, loanId, "Loan Approval", loanApplicationDate);
+            startDocumentQAProcessSync(documentId, loanId, "Loan Completion", loanApplicationDate);
+        }
         
         // then
+        List<Execution> executions = null;
         do {
         	Thread.sleep(1000);
-        } while(!runtimeService.createExecutionQuery().list().isEmpty());
+        	// there are no timers to retry async jobs
+            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+        	
+        	executions = runtimeService.createExecutionQuery().list();        	
+        	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
+        					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
+        	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
+        	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
+        	                   ", Executions="+ runtimeService.createExecutionQuery().list());
+        } while(!executions.isEmpty());
         
-        assertLoanProcessCompleted(loanId);
-        assertLoanProcessCompleted(loanId2);
-        assertLoanProcessCompleted(loanId3);
+        for(String loanId: loanIds) 
+        	assertLoanProcessCompleted(loanId);
 
         assertThat(runtimeService.createExecutionQuery().list()).isEmpty();
         
@@ -139,13 +143,13 @@ public class MortgageQAProcessTest
         Date loanApplicationDate = new Date();
         
         // when
-        String loanId = "loan00004";
+        String loanId = "loan00006";
         startDocumentQAProcessAsync(documentId, loanId, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Approval", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId, "Loan Completion", loanApplicationDate);
 
-        String loanId2 = "loan00005";
+        String loanId2 = "loan00007";
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Application", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Signature", loanApplicationDate);
         startDocumentQAProcessAsync(documentId, loanId2, "Loan Approval", loanApplicationDate);
@@ -154,6 +158,13 @@ public class MortgageQAProcessTest
         // then
         do {
         	Thread.sleep(1000);
+            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+        	
+        	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
+					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
+	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
+	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
+	                   ", Executions="+ runtimeService.createExecutionQuery().list());
         } while(!runtimeService.createExecutionQuery().list().isEmpty());
         
         assertLoanProcessCompleted(loanId);

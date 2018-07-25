@@ -18,18 +18,18 @@ public class StartLoanWorkflowJavaDelegate implements JavaDelegate {
 
 	@Override
 	public void execute(DelegateExecution execution) {
+		String loanId = (String) execution.getVariable("loanId");
+		Date date = (Date) execution.getVariable("loanApplicationDate");
 
 		CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
 		CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRES_NEW);
 
 		ProcessInstance loanProcess = null;
 
-		// make sure synchronized atomic execution
-		synchronized (lock) {
+		// make sure synchronized atomic execution with same loan id
+		synchronized (loanId.intern()) {
 			loanProcess = commandExecutor.execute(commandConfig, new Command<ProcessInstance>() {
 				public ProcessInstance execute(CommandContext commandContext) {
-					String loanId = (String) execution.getVariable("loanId");
-					Date date = (Date) execution.getVariable("loanApplicationDate");
 
 					Loan loan = new Loan(loanId, date);
 
