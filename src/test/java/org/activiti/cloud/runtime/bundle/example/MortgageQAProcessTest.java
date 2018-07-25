@@ -115,8 +115,8 @@ public class MortgageQAProcessTest
         List<Execution> executions = null;
         do {
         	Thread.sleep(1000);
-        	// there are no timers to retry async jobs
-            //assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+        	// there should be no timers to retry async jobs
+            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
         	
         	executions = runtimeService.createExecutionQuery().list();        	
         	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
@@ -158,7 +158,7 @@ public class MortgageQAProcessTest
         // then
         do {
         	Thread.sleep(1000);
-            //assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
         	
         	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
 					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+

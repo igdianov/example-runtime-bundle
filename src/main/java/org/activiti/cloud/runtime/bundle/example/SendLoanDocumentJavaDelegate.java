@@ -22,7 +22,7 @@ public class SendLoanDocumentJavaDelegate implements JavaDelegate {
 		String loanProcessId = (String) execution.getVariable("loanProcessId");
 		Document document = (Document) execution.getVariable("document");
 
-		synchronized (loanProcessId.intern()) {
+		synchronized (lock) {
 		
 	  		Execution loanProcess = Context.getProcessEngineConfiguration().getRuntimeService()
 					.createExecutionQuery()
