@@ -49,6 +49,7 @@ pipeline {
             // so we can retrieve the version in later steps
             sh "echo \$(jx-release-version) > VERSION"
             sh "mvn versions:set -DnewVersion=\$(cat VERSION)"
+            sh 'mvn clean test'
           }
           dir ('./charts/example-runtime-bundle') {
             container('maven') {
@@ -56,7 +57,7 @@ pipeline {
             }
           }
           container('maven') {
-            sh 'mvn clean deploy -Ddocker.skip'
+            sh 'mvn deploy -Ddocker.skip -DskipTests'
 
             sh 'export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml'
 
