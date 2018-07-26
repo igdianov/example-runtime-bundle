@@ -47,6 +47,15 @@ public class MortgageQAProcessTest
     public void tearDown() {
     	 activitiRule.getRepositoryService().deleteDeployment(deployment.getId(), true);
     }
+    
+    @Test
+    public void testItern() {
+		String s1="Test";
+		String s2="Test";
+				
+		assertThat(s1.intern()).isEqualTo(s2.intern());
+		assert s1.intern() == s2.intern();
+	}
 
     @Test
     public void startValidDocumentQAProcess() throws Exception

@@ -27,7 +27,7 @@ public class StartLoanWorkflowJavaDelegate implements JavaDelegate {
 		ProcessInstance loanProcess = null;
 
 		// make sure synchronized atomic execution 
-		synchronized (lock) {
+		synchronized (loanId.intern()) {
 			loanProcess = commandExecutor.execute(commandConfig, new Command<ProcessInstance>() {
 				public ProcessInstance execute(CommandContext commandContext) {
 

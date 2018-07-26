@@ -20,16 +20,17 @@ public class SendLoanDocumentJavaDelegate implements JavaDelegate {
 	@Override
 	public void execute(DelegateExecution execution) {
 		String loanProcessId = (String) execution.getVariable("loanProcessId");
-		Document document = (Document) execution.getVariable("document");
 
-		synchronized (lock) {
-		
+		synchronized (loanProcessId.intern()) {
+
+			Document document = (Document) execution.getVariable("document");
+			
 	  		Execution loanProcess = Context.getProcessEngineConfiguration().getRuntimeService()
 					.createExecutionQuery()
 					.processInstanceId(loanProcessId)
 					.activityId("receiveDocument")
 					.singleResult();
-				
+
 			if(loanProcess != null) {
 				
 				CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
