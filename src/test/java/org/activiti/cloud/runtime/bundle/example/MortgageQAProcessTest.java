@@ -97,7 +97,7 @@ public class MortgageQAProcessTest
     }
 
 
-    @Test(timeout=60000)
+    @Test(timeout=80000)
     public void startValidLoanQAProcessSync() throws Exception
     {
         RuntimeService runtimeService = activitiRule.getRuntimeService();
@@ -142,7 +142,7 @@ public class MortgageQAProcessTest
         
     }
     
-    @Test(timeout=60000)
+    @Test(timeout=80000)
     public void startValidLoanQAProcessAsync() throws Exception
     {
         RuntimeService runtimeService = activitiRule.getRuntimeService();
