@@ -113,7 +113,7 @@ public class MortgageQAProcessTest
 
         // given
         Date loanApplicationDate = new Date();
-        String loanIds[] = new String[5];
+        String loanIds[] = new String[3];
         for(int i=0; i<loanIds.length; i++) {
         	loanIds[i] = String.format("loan%05d", i+1);
         }
