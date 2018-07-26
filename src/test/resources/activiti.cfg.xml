@@ -12,13 +12,13 @@
     
     <!-- job executor configurations -->
     <property name="asyncExecutorActivate" value="true" />
-    <property name="asyncExecutorDefaultAsyncJobAcquireWaitTime" value="500" />
-    <property name="asyncExecutorDefaultTimerJobAcquireWaitTime" value="500" />
+    <property name="asyncExecutorDefaultAsyncJobAcquireWaitTime" value="5000" />
+    <property name="asyncExecutorDefaultTimerJobAcquireWaitTime" value="5000" />
     <property name="asyncExecutorDefaultQueueSizeFullWaitTime" value="100" />
-    <property name="asyncExecutorAsyncJobLockTimeInMillis" value="100" />
-    <property name="asyncExecutorTimerLockTimeInMillis" value="100" />
-    <property name="asyncExecutorMaxAsyncJobsDuePerAcquisition" value="1" />
-    <property name="asyncExecutorMaxTimerJobsPerAcquisition" value="1" />
+    <property name="asyncExecutorAsyncJobLockTimeInMillis" value="1000" />
+    <property name="asyncExecutorTimerLockTimeInMillis" value="1000" />
+    <property name="asyncExecutorMaxAsyncJobsDuePerAcquisition" value="5" />
+    <property name="asyncExecutorMaxTimerJobsPerAcquisition" value="5" />
     <property name="asyncExecutorThreadPoolQueueSize" value="1000" />
     
     <!-- custom configurations -->

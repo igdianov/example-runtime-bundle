@@ -21,15 +21,15 @@ public class RuntimeBundleApplicationConfigurer implements ProcessEngineConfigur
 
 	@Override
 	public void configure(SpringProcessEngineConfiguration configuration) {
-		Integer jobsPerAquisttion = Runtime.getRuntime().availableProcessors();
+		Integer jobsPerAquisttion = Runtime.getRuntime().availableProcessors() * 2;
 		
 		configuration.setCustomPostDeployers(Arrays.asList(new RulesDeployer()));
 		configuration.setDatabaseSchemaUpdate("drop-create");
 		configuration.setAsyncExecutorActivate(true);
-		configuration.setAsyncExecutorDefaultAsyncJobAcquireWaitTime(500); // ms
-		configuration.setAsyncExecutorDefaultTimerJobAcquireWaitTime(500); // ms
-		configuration.setAsyncExecutorAsyncJobLockTimeInMillis(100); // ms
-		configuration.setAsyncExecutorTimerLockTimeInMillis(100); // ms
+		configuration.setAsyncExecutorDefaultAsyncJobAcquireWaitTime(5000); // ms
+		configuration.setAsyncExecutorDefaultTimerJobAcquireWaitTime(5000); // ms
+		configuration.setAsyncExecutorAsyncJobLockTimeInMillis(1000); // ms
+		configuration.setAsyncExecutorTimerLockTimeInMillis(1000); // ms
 		configuration.setAsyncExecutorMaxAsyncJobsDuePerAcquisition(jobsPerAquisttion);
 		configuration.setAsyncExecutorMaxTimerJobsPerAcquisition(jobsPerAquisttion);
 		configuration.setAsyncExecutorThreadPoolQueueSize(1000);
