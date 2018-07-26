@@ -21,35 +21,39 @@ public class SendLoanDocumentJavaDelegate implements JavaDelegate {
 	public void execute(DelegateExecution execution) {
 		String loanProcessId = (String) execution.getVariable("loanProcessId");
 
-		synchronized (loanProcessId.intern()) {
-
-			Document document = (Document) execution.getVariable("document");
+		synchronized (intern(loanProcessId)) {
 			
-	  		Execution loanProcess = Context.getProcessEngineConfiguration().getRuntimeService()
-					.createExecutionQuery()
-					.processInstanceId(loanProcessId)
-					.activityId("receiveDocument")
-					.singleResult();
+			CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
+			CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRED);
+			
+			Execution result = commandExecutor.execute(commandConfig, new Command<Execution>() {
+				public Execution execute(CommandContext commandContext) {
+					Document document = (Document) execution.getVariable("document");
+					
+			  		Execution receiveDocument = Context.getProcessEngineConfiguration().getRuntimeService()
+							.createExecutionQuery()
+							.processInstanceId(loanProcessId)
+							.activityId("receiveDocument")
+							.singleResult();
 
-			if(loanProcess != null) {
+					if(receiveDocument != null) {
+						Context.getProcessEngineConfiguration()
+							.getRuntimeService()
+							.trigger(receiveDocument.getId(), Collections.singletonMap("document", document));
+					}
+					
+					return receiveDocument;
+				}
+			});
 				
-				CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
-				CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRED);
-				
-					commandExecutor.execute(commandConfig, new Command<Void>() {
-						public Void execute(CommandContext commandContext) {
-							Context.getProcessEngineConfiguration()
-								.getRuntimeService()
-								.trigger(loanProcess.getId(), Collections.singletonMap("document", document));
-							
-							return null;
-						}
-					});
-			} else { 
-				throw new ActivitiException("Cannot find active loan process execution for document: "+document);
-			}
+			if(result==null)
+				throw new ActivitiException("Cannot find active loan process execution for id: " + loanProcessId);
 		}
 
+	}
+	
+	private String intern(String id) {
+		return new String(this.getClass() + "_" + id).intern();
 	}
 	
 }

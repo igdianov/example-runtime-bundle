@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.RepositoryService;
@@ -13,7 +12,6 @@ import org.activiti.engine.RuntimeService;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricVariableInstance;
 import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.test.ActivitiRule;
 import org.junit.After;
@@ -130,19 +128,17 @@ public class MortgageQAProcessTest
         }
         
         // then
-        List<Execution> executions = null;
         do {
         	Thread.sleep(1000);
-        	// there should be no timers to retry async jobs
-            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
-        	
-        	executions = runtimeService.createExecutionQuery().list();        	
         	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
-        					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
-        	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
-        	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
-        	                   ", Executions="+ runtimeService.createExecutionQuery().list());
-        } while(!executions.isEmpty());
+					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
+	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
+	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
+	                   ", Executions="+ runtimeService.createExecutionQuery().list());
+        	
+        	// there should be no timers to retry async jobs
+        	assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+        } while(!runtimeService.createExecutionQuery().list().isEmpty());
         
         for(String loanId: loanIds) 
         	assertLoanProcessCompleted(loanId);
@@ -176,13 +172,13 @@ public class MortgageQAProcessTest
         // then
         do {
         	Thread.sleep(1000);
-            assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
-        	
         	System.out.println("----- Async="+ activitiRule.getManagementService().createJobQuery().list().size()+
 					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
 	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
 	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
 	                   ", Executions="+ runtimeService.createExecutionQuery().list());
+
+        	assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
         } while(!runtimeService.createExecutionQuery().list().isEmpty());
         
         assertLoanProcessCompleted(loanId);

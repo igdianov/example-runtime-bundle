@@ -27,7 +27,7 @@ public class StartLoanWorkflowJavaDelegate implements JavaDelegate {
 		ProcessInstance loanProcess = null;
 
 		// make sure synchronized atomic execution 
-		synchronized (loanId.intern()) {
+		synchronized (intern(loanId)) {
 			loanProcess = commandExecutor.execute(commandConfig, new Command<ProcessInstance>() {
 				public ProcessInstance execute(CommandContext commandContext) {
 
@@ -50,4 +50,9 @@ public class StartLoanWorkflowJavaDelegate implements JavaDelegate {
 		execution.setVariable("loanProcessId", loanProcess.getId());
 
 	}
+	
+	private String intern(String id) {
+		return new String(this.getClass() + "_" + id).intern();
+	}
+	
 }
