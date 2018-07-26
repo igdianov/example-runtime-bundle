@@ -21,7 +21,7 @@ public class SendLoanDocumentJavaDelegate implements JavaDelegate {
 	public void execute(DelegateExecution execution) {
 		String loanProcessId = (String) execution.getVariable("loanProcessId");
 
-		synchronized (intern(loanProcessId)) {
+		synchronized (lock) {
 			
 			CommandExecutor commandExecutor = Context.getProcessEngineConfiguration().getCommandExecutor();
 			CommandConfig commandConfig = new CommandConfig(false, TransactionPropagation.REQUIRED);

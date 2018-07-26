@@ -111,7 +111,7 @@ public class MortgageQAProcessTest
 
         // given
         Date loanApplicationDate = new Date();
-        String loanIds[] = new String[3];
+        String loanIds[] = new String[10];
         for(int i=0; i<loanIds.length; i++) {
         	loanIds[i] = String.format("loan%05d", i+1);
         }
@@ -125,6 +125,17 @@ public class MortgageQAProcessTest
             startDocumentQAProcessSync(documentId, loanId, "Loan Signature", loanApplicationDate);
             startDocumentQAProcessSync(documentId, loanId, "Loan Approval", loanApplicationDate);
             startDocumentQAProcessSync(documentId, loanId, "Loan Completion", loanApplicationDate);
+            
+            Thread.sleep(50);
+
+            System.out.println(
+         		       "----- LoanId="+ loanId +
+            		   ", Jobs="+ activitiRule.getManagementService().createJobQuery().list().size()+
+					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
+	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
+	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
+	                   ", Executions="+ runtimeService.createExecutionQuery().list().size());
+            
         }
         
         // then
@@ -134,10 +145,10 @@ public class MortgageQAProcessTest
 					   ", Timers="+ activitiRule.getManagementService().createTimerJobQuery().list().size()+
 	                   ", Suspended="+ activitiRule.getManagementService().createSuspendedJobQuery().list().size()+
 	                   ", Processes="+ runtimeService.createProcessInstanceQuery().list().size()+
-	                   ", Executions="+ runtimeService.createExecutionQuery().list());
+	                   ", Executions="+ runtimeService.createExecutionQuery().list().size());
         	
         	// there should be no timers to retry async jobs
-        	//assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
+        	assertThat(activitiRule.getManagementService().createTimerJobQuery().list()).isEmpty();
         } while(!runtimeService.createExecutionQuery().list().isEmpty());
         
         for(String loanId: loanIds) 
