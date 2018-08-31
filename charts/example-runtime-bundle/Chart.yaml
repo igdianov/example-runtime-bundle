@@ -1,5 +1,5 @@
 apiVersion: v1
-description: A Helm chart for Kubernetes
-icon: https://raw.githubusercontent.com/jenkins-x/jenkins-x-platform/master/images/java.png
+description: "A Helm chart for Activiti Cloud Example Runtime Bundle"
+icon: "https://avatars0.githubusercontent.com/u/2317879?s=280&v=4"
 name: example-runtime-bundle
 version: 0.1.0-SNAPSHOT
