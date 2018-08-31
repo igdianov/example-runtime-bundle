@@ -1,5 +1,5 @@
 dependencies:
-- alias: activitipostgresql
+- alias: examplepostgresql
   name: postgresql
   repository: https://kubernetes-charts.storage.googleapis.com
   version: 0.11.0

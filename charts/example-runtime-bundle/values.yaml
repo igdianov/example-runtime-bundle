@@ -22,9 +22,9 @@ global:
     hostName: ""
 db:
   uri: ""
-  name: activitipostgresql
+  name: examplepostgresql
 
-activitipostgresql:
+examplepostgresql:
    postgresPassword: activiti
 
 javaOpts:
